@@ -8,6 +8,7 @@ on:
 jobs:
   productionPromotion:
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,4 +20,5 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: test/stage
