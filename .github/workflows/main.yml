@@ -15,10 +15,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
 
-      - name: Fetch the remote branches
-        run: git fetch origin
+     # - name: Fetch the remote branches
+      #  run: git fetch origin
 
       - name: Create Pull Request from origin/dev to origin/staging
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
