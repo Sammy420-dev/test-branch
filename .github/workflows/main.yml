@@ -1,8 +1,8 @@
 name: Weekly Auto PR from Dev to Staging
 
 on:
-  schedule:
-    - cron: "* * * * *"  # Runs every 5 minutes
+  # schedule:
+  #   - cron: "* * * * *"  # Runs every 5 minutes
   workflow_dispatch:  # Allows manual trigger if needed
 
 jobs:
