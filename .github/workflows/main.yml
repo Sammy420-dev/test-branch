@@ -1,8 +1,36 @@
-name: Weekly Auto PR from Dev to Staging
+# name: Weekly Auto PR from Dev to Staging
+
+# on:
+#   # schedule:
+#   #   - cron: "* * * * *"  # Runs every 5 minutes
+#   workflow_dispatch:  # Allows manual trigger if needed
+
+# jobs:
+#   productionPromotion:
+#     runs-on: ubuntu-latest
+#     permissions:
+#      contents: write  # To allow pushing changes to the repo
+#      pull-requests: write  # To create and manage pull requests
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           ref: staging
+#       - name: Reset promotion branch
+#         run: |
+#           git fetch origin dev:dev
+#           git reset --hard dev
+#       - name: Create Pull Request
+#         uses: peter-evans/create-pull-request@v7
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           branch: test/stage
+
+
+name: Weekly Auto PR from Staging to Master
 
 on:
   # schedule:
-  #   - cron: "* * * * *"  # Runs every 5 minutes
+  #   - cron: "0 13 * * 3"  # Runs every Wednesday at 8:00 AM EST (13:00 UTC)
   workflow_dispatch:  # Allows manual trigger if needed
 
 jobs:
@@ -14,13 +42,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: staging
+          ref: main
+
       - name: Reset promotion branch
         run: |
-          git fetch origin dev:dev
-          git reset --hard dev
+          git fetch origin staging:staging
+          git reset --hard staging
+
+      - name: Generate Date-Based Branch Name
+        id: branch_name
+        run: |
+          # Generate the current date in YYYY-MM-DD format
+          CURRENT_DATE=$(date +'%Y-%m-%d')
+          # Combine "devops/master-" with the current date
+          echo "devops/master-${CURRENT_DATE}" > branch_name.txt
+          cat branch_name.txt
+        shell: bash
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: test/stage
+          branch: ${{ steps.branch_name.outputs.branch_name }}
+          title: "Automated PR from staging to master on ${{ steps.branch_name.outputs.branch_name }}"
+          body: "This PR merges the latest changes from staging to master. Created on ${{ steps.branch_name.outputs.branch_name }}."
