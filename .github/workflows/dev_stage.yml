@@ -63,6 +63,6 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: devops/master-${CURRENT_DATE}
+          branch: devops/master-$CURRENT_DATE
           title: "Automated PR from staging to master on ${CURRENT_DATE}"
           body: "This PR merges the latest changes from staging to master. Created on ${CURRENT_DATE}."
