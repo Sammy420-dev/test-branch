@@ -42,12 +42,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: staging
 
       - name: Reset promotion branch
         run: |
-          git fetch origin staging:staging
-          git reset --hard staging
+          git fetch origin dev:dev
+          git reset --hard dev
 
       - name: Generate Date-Based Branch Name
         id: branch_name
