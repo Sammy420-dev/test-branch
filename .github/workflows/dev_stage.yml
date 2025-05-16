@@ -26,19 +26,62 @@
 #           branch: test/stage
 
 
+# name: Weekly Auto PR from Staging to Master
+
+# on:
+#   # schedule:
+#   #   - cron: "0 13 * * 3"  # Runs every Wednesday at 8:00 AM EST (13:00 UTC)
+#   workflow_dispatch:  # Allows manual trigger if needed
+
+# jobs:
+#   productionPromotion:
+#     runs-on: ubuntu-latest
+#     permissions:
+#      contents: write  # To allow pushing changes to the repo
+#      pull-requests: write  # To create and manage pull requests
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           ref: staging
+
+#       - name: Reset promotion branch
+#         run: |
+#           git fetch origin dev:dev
+#           git reset --hard dev
+
+#       - name: Generate Date-Based Branch Name
+#         id: branch_name
+#         run: |
+#           # Generate the current date in YYYY-MM-DD format
+#           CURRENT_DATE=$(date +'%Y-%m-%d')
+#           # Combine "devops/master-" with the current date
+#           echo "devops/master-${CURRENT_DATE}" > branch_name.txt
+#           cat branch_name.txt
+#         # shell: bash
+
+#       - name: Create Pull Request
+#         uses: peter-evans/create-pull-request@v7
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           branch: devops/master-$CURRENT_DATE
+#           title: "Automated PR from staging to master on ${CURRENT_DATE}"
+#           body: "This PR merges the latest changes from staging to master. Created on ${CURRENT_DATE}."
+
+
 name: Weekly Auto PR from Staging to Master
 
 on:
   # schedule:
-  #   - cron: "0 13 * * 3"  # Runs every Wednesday at 8:00 AM EST (13:00 UTC)
-  workflow_dispatch:  # Allows manual trigger if needed
+  #   - cron: "0 13 * * 3"  # Every Wednesday at 13:00 UTC
+  workflow_dispatch:
 
 jobs:
   productionPromotion:
     runs-on: ubuntu-latest
     permissions:
-     contents: write  # To allow pushing changes to the repo
-     pull-requests: write  # To create and manage pull requests
+      contents: write
+      pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,19 +93,17 @@ jobs:
           git reset --hard dev
 
       - name: Generate Date-Based Branch Name
-        id: branch_name
+        id: generate_branch
         run: |
-          # Generate the current date in YYYY-MM-DD format
           CURRENT_DATE=$(date +'%Y-%m-%d')
-          # Combine "devops/master-" with the current date
-          echo "devops/master-${CURRENT_DATE}" > branch_name.txt
-          cat branch_name.txt
-        # shell: bash
+          BRANCH_NAME="devops/master-${CURRENT_DATE}"
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "current_date=${CURRENT_DATE}" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: devops/master-$CURRENT_DATE
-          title: "Automated PR from staging to master on ${CURRENT_DATE}"
-          body: "This PR merges the latest changes from staging to master. Created on ${CURRENT_DATE}."
+          branch: ${{ steps.generate_branch.outputs.branch_name }}
+          title: "Automated PR from staging to master on ${{ steps.generate_branch.outputs.current_date }}"
+          body: "This PR merges the latest changes from staging to master. Created on ${{ steps.generate_branch.outputs.current_date }}."
